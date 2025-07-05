@@ -72,13 +72,13 @@ jobs:
         # Clean up
         rm -rf love.app "Rogue Asteroid.app" love-11.4-macos.zip
     
-    - name: Create Linux AppImage
+    - name: Create Linux distribution
       run: |
         cd dist
         
         # Create Linux launcher script
         mkdir -p linux
-        cat > linux/rogue-asteroid << 'EOF'
+        cat > linux/rogue-asteroid << 'SCRIPT_EOF'
 #!/bin/bash
 DIR="$(dirname "$(readlink -f "$0")")"
 if command -v love >/dev/null 2>&1; then
@@ -87,7 +87,7 @@ else
     echo "Love2D not found. Please install: sudo apt install love2d"
     exit 1
 fi
-EOF
+SCRIPT_EOF
         chmod +x linux/rogue-asteroid
         cp rogue-asteroid.love linux/
         
