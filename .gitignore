@@ -1,0 +1,32 @@
+# Build artifacts
+builds/
+*.love
+*.zip
+
+# System files
+.DS_Store
+Thumbs.db
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Logs
+*.log
+
+# Temporary files
+*.tmp
+*.temp
+
+# OS generated files
+*.bak
+*.orig
+
+# Love2D specific
+*.t2k
+
+# Asset cache (if any)
+assets/cache/

@@ -1,0 +1,80 @@
+name: Build and Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Install Love2D
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y love
+    
+    - name: Test game
+      run: |
+        # Basic syntax check
+        love --version
+        lua -e "love = {}; love.graphics = {}; love.window = {}; love.keyboard = {}; love.mouse = {}; love.audio = {}; love.sound = {}; dofile('main.lua')"
+    
+    - name: Create .love package
+      run: |
+        mkdir -p dist
+        zip -r dist/rogue-asteroid.love . -x "dist/*" ".git/*" "*.md" "build.sh" "download-love2d.sh" ".github/*"
+    
+    - name: Download Love2D Windows
+      run: |
+        cd dist
+        wget https://github.com/love2d/love/releases/download/11.4/love-11.4-win64.zip
+        unzip love-11.4-win64.zip
+        mv love-11.4-win64 windows
+        
+        # Create Windows executable
+        cd windows
+        cat love.exe ../rogue-asteroid.love > rogue-asteroid.exe
+        cd ..
+        
+        # Package Windows build
+        zip -r rogue-asteroid-windows.zip windows/
+        rm -rf windows love-11.4-win64.zip
+    
+    - name: Upload .love artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: rogue-asteroid-love
+        path: dist/rogue-asteroid.love
+    
+    - name: Upload Windows artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: rogue-asteroid-windows
+        path: dist/rogue-asteroid-windows.zip
+    
+    - name: Create Release
+      if: startsWith(github.ref, 'refs/tags/')
+      uses: softprops/action-gh-release@v1
+      with:
+        files: |
+          dist/rogue-asteroid.love
+          dist/rogue-asteroid-windows.zip
+        body: |
+          🚀 **Rogue Asteroid** - A space shooter with roguelike progression!
+          
+          **Download Options:**
+          - `rogue-asteroid.love` - Universal package (requires Love2D)
+          - `rogue-asteroid-windows.zip` - Windows standalone executable
+          
+          **Built entirely with [Claude Code](https://claude.ai/code)** 🤖
+        draft: false
+        prerelease: false
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
