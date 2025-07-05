@@ -13,6 +13,11 @@ A fast-paced asteroid shooter with roguelike progression, created completely usi
 - **Enhanced Graphics**: Detailed ship sprites, animated starfield, and glowing bullets
 - **Multiple Control Schemes**: WASD/Arrow keys + Space/Mouse support
 
+
+## Screenshot
+
+![image](https://github.com/user-attachments/assets/676b8341-2a25-4042-ab6b-dc8fbadbdeea)
+
 ## 🎯 How to Play
 
 - **Move**: WASD or Arrow Keys (rotate and thrust)
