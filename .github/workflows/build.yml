@@ -25,7 +25,6 @@ jobs:
     - name: Create .love package
       run: |
         mkdir -p dist
-        # Exclude CI files, docs, and build scripts from the game package
         zip -r dist/rogue-asteroid.love . \
           -x "dist/*" ".git/*" ".github/*" "*.md" "build.sh" "download-love2d.sh" \
              "rogue-asteroid-source.zip" "CLAUDE.md" "LICENSE"
@@ -33,68 +32,41 @@ jobs:
     - name: Download and prepare Love2D Windows
       run: |
         cd dist
-        
-        # Download Love2D Windows binaries
         wget -q https://github.com/love2d/love/releases/download/11.4/love-11.4-win64.zip
         unzip -q love-11.4-win64.zip
         mv love-11.4-win64 windows
-        
-        # Create Windows executable by concatenating
         cd windows
         cat love.exe ../rogue-asteroid.love > rogue-asteroid.exe
-        rm love.exe  # Remove original to avoid confusion
+        rm love.exe
         cd ..
-        
-        # Create Windows distribution zip
         zip -r rogue-asteroid-windows.zip windows/
-        
-        # Clean up
         rm -rf windows love-11.4-win64.zip
     
     - name: Download and prepare Love2D macOS
       run: |
         cd dist
-        
-        # Download Love2D macOS
         wget -q https://github.com/love2d/love/releases/download/11.4/love-11.4-macos.zip
         unzip -q love-11.4-macos.zip
-        
-        # Create macOS app bundle
         cp -r love.app "Rogue Asteroid.app"
         cp rogue-asteroid.love "Rogue Asteroid.app/Contents/Resources/"
-        
-        # Update Info.plist for custom app name
-        sed -i 's/<string>LÖVE<\/string>/<string>Rogue Asteroid<\/string>/g' "Rogue Asteroid.app/Contents/Info.plist" || true
-        
-        # Create macOS distribution zip
         zip -r rogue-asteroid-macos.zip "Rogue Asteroid.app"
-        
-        # Clean up
         rm -rf love.app "Rogue Asteroid.app" love-11.4-macos.zip
     
     - name: Create Linux distribution
       run: |
         cd dist
-        
-        # Create Linux launcher script
         mkdir -p linux
-        cat > linux/rogue-asteroid << 'SCRIPT_EOF'
-#!/bin/bash
-DIR="$(dirname "$(readlink -f "$0")")"
-if command -v love >/dev/null 2>&1; then
-    love "$DIR/rogue-asteroid.love"
-else
-    echo "Love2D not found. Please install: sudo apt install love2d"
-    exit 1
-fi
-SCRIPT_EOF
+        echo '#!/bin/bash' > linux/rogue-asteroid
+        echo 'DIR="$(dirname "$(readlink -f "$0")")"' >> linux/rogue-asteroid
+        echo 'if command -v love >/dev/null 2>&1; then' >> linux/rogue-asteroid
+        echo '    love "$DIR/rogue-asteroid.love"' >> linux/rogue-asteroid
+        echo 'else' >> linux/rogue-asteroid
+        echo '    echo "Love2D not found. Please install: sudo apt install love2d"' >> linux/rogue-asteroid
+        echo '    exit 1' >> linux/rogue-asteroid
+        echo 'fi' >> linux/rogue-asteroid
         chmod +x linux/rogue-asteroid
         cp rogue-asteroid.love linux/
-        
-        # Create Linux distribution
         zip -r rogue-asteroid-linux.zip linux/
-        
-        # Clean up
         rm -rf linux
     
     - name: List generated files
